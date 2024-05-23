@@ -1,5 +1,6 @@
 import Contact from "./Components/contact";
 import { FormEvent, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 
 type ContactType = 
 {
@@ -19,31 +20,45 @@ function ContactBook() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    const newContact = {
+    const newContact: ContactType = {
+      id: uuidv4() ,
       name: event.target[0].value,
       city: event.target[1].value,
     };
     setContacts([...contacts, newContact]);
     
   }
-  function handleDelete(index)
+  function handleDelete(contactID: number)
   {
-    
-    setContacts(contacts.filter((_, idx) => idx !== index));
-
-    
+    setContacts(contacts.filter(contact => contact.id !== contactID));
   }
   function handleEdit(index)
   {
     setEditingId(index);
   }
-  function handleNameChange(index , newName)
+  function handleNameChange(id : number , newName : string)
   {
-    setContacts(contacts.map(contact , id))
+    setContacts(contacts.map(contact => 
+      {
+        if(contact.id === id)
+        {
+          return {...contact, name: newName}
+        }
+        return contact
+      }))
   }
-  function handleCityChange(index , newCity)
+  function handleCityChange(id : number , newCity : string)
+
   {
-    
+    setContacts(contacts.map(contact =>
+      {
+        if(contact.id === id)
+        {
+          return {...contact , city: newCity}
+        }
+        return contact
+      }
+      ))
   }
 
   return (
@@ -63,9 +78,9 @@ function ContactBook() {
           <input title="" type="submit" value="Add Contact"></input>
         </form>
       </div>
-      {contacts.map((contact, index) => (
-        <Contact name={contact.name} city={contact.city} key={index} id={index} 
-        onDelete = {handleDelete} onEdit = {handleEdit} isEditing={editingId === index} onNameChange={handleNameChange} onCityChange={handleCityChange}/>
+      {contacts.map((contact) => (
+        <Contact name={contact.name} city={contact.city} key={contact.id} id={contact.id} 
+        onDelete = {handleDelete} onEdit = {handleEdit} isEditing={editingId === contact.id} onNameChange={handleNameChange} onCityChange={handleCityChange}/>
       ))}
     </>
   );
